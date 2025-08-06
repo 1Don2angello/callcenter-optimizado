@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import * as XLSX from "xlsx";
-import WhatsAppButton from "./WhatsAppButton"; // <-- importa tu botón
+import WhatsAppButton from "./WhatsAppButton";
 
 export default function ImportarContactos() {
   const [contactos, setContactos] = useState([]);
@@ -19,21 +19,38 @@ export default function ImportarContactos() {
       const soloNuevos = data.filter(
         (row) => !row["STATUS LLAMADA"] || row["STATUS LLAMADA"].trim() === ""
       );
+      // Estado inicial de los checks
       const filtrados = soloNuevos.map((row) => ({
         nombre: row["NOMBRE"] || "",
         telefono: row["TELEFONO"] || "",
         correo: row["CORREO"] || "",
-        status: row["STATUS LLAMADA"] || ""
+        status: row["STATUS LLAMADA"] || "",
+        llamadoHecho: false,
+        saludoEnviado: false,
+        seguimientoEnviado: false,
       }));
       setContactos(filtrados);
     };
     reader.readAsBinaryString(file);
   }
 
+  // Maneja los cambios de los checks
+  function handleCheck(i, campo) {
+    const nuevos = [...contactos];
+    nuevos[i][campo] = !nuevos[i][campo];
+    setContactos(nuevos);
+  }
+
+  // Solo muestra contactos que no están completos
+  const visibles = contactos.filter(
+    (c) => !(c.llamadoHecho && c.saludoEnviado && c.seguimientoEnviado)
+  );
+
   return (
     <div>
       <h2>Importar Contactos Nuevos</h2>
       <input type="file" accept=".xlsx,.xls" onChange={onFileChange} />
+      <p>Completados: {contactos.length - visibles.length} / {contactos.length}</p>
       <table>
         <thead>
           <tr>
@@ -41,19 +58,55 @@ export default function ImportarContactos() {
             <th>Teléfono</th>
             <th>Correo</th>
             <th>Status Llamada</th>
+            <th>✓ Llamado</th>
+            <th>✓ WhatsApp Saludo</th>
+            <th>✓ WhatsApp Seguimiento</th>
             <th>Acciones WhatsApp</th>
           </tr>
         </thead>
         <tbody>
-          {contactos.map((c, i) => (
+          {visibles.map((c, i) => (
             <tr key={i}>
               <td>{c.nombre}</td>
               <td>{c.telefono}</td>
               <td>{c.correo}</td>
               <td>{c.status}</td>
               <td>
-                <WhatsAppButton telefono={c.telefono} nombre={c.nombre} tipo="saludo" />
-                <WhatsAppButton telefono={c.telefono} nombre={c.nombre} tipo="seguimiento" />
+                <input
+                  type="checkbox"
+                  checked={c.llamadoHecho}
+                  onChange={() => handleCheck(i, "llamadoHecho")}
+                />
+              </td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={c.saludoEnviado}
+                  onChange={() => handleCheck(i, "saludoEnviado")}
+                />
+              </td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={c.seguimientoEnviado}
+                  onChange={() => handleCheck(i, "seguimientoEnviado")}
+                />
+              </td>
+              <td>
+                {!c.saludoEnviado && (
+                  <WhatsAppButton
+                    telefono={c.telefono}
+                    nombre={c.nombre}
+                    tipo="saludo"
+                  />
+                )}
+                {!c.seguimientoEnviado && (
+                  <WhatsAppButton
+                    telefono={c.telefono}
+                    nombre={c.nombre}
+                    tipo="seguimiento"
+                  />
+                )}
               </td>
             </tr>
           ))}
