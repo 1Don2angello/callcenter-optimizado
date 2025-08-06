@@ -3,12 +3,12 @@ export default function WhatsAppButton({ telefono, nombre, tipo }) {
   const MENSAJES = {
   saludo: {
     texto: (nombre) => `Hola ${nombre}, soy Ángel de Ciudad Maderas.`,
-    img: "https://acortar.link/20fc1e"
+    img: "https://drive.google.com/file/d/1fCJKsrp523xsSRPVF7c_Yt3MLGy0mziZ/view"
   },
   seguimiento: {
     texto: () =>
       `Estamos reconectando con clientes de alto perfil que mostraron interés en nuestro proyecto hace un año y quisiera saber ¿del 1 al 10 qué tan interesado sigues? 😊`,
-    img: "https://acortar.link/k6hGe4"
+    img: "https://drive.google.com/file/d/1lOcENuYtoe9X8jKhF0ukxTvO3mHrEY-e/view"
   }
 };
 
